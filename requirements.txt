@@ -1,0 +1,6 @@
+streamlit
+firebase-admin
+pandas
+plotly
+Pillow
+requests
