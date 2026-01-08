@@ -10,9 +10,7 @@ import io
 import requests
 import json
 
-# ====================================================================
-# 1. AYARLAR VE GÜVENLİ BAĞLANTI (SIFIR HARDCODE)
-# ====================================================================
+
 st.set_page_config(
     page_title="ETM 7/24 Panel",
     page_icon="🌸",
@@ -20,10 +18,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ANAHTARLARI SADECE SECRETS'TAN AL ---
 try:
-    # Kodun içinde asla varsayılan değer (default) bırakmıyoruz.
-    # Sadece Streamlit'in kasasından (secrets) okuyacak.
+
     ADMIN_EMAIL = st.secrets["ADMIN_EMAIL"]
     FIREBASE_WEB_API_KEY = st.secrets["FIREBASE_WEB_API_KEY"]
     STORAGE_BUCKET_NAME = st.secrets["STORAGE_BUCKET_NAME"]
@@ -32,7 +28,6 @@ except KeyError as e:
     st.error(f"HATA: Streamlit Secrets ayarlarında {e} eksik! Lütfen Dashboard ayarlarından ekleyin.")
     st.stop()
 
-# --- FIREBASE BAŞLATMA ---
 if not firebase_admin._apps:
     try:
         if "textkey" in st.secrets:
@@ -50,9 +45,7 @@ if not firebase_admin._apps:
         st.error(f"Firebase Bağlantı Hatası: {e}")
         st.stop()
 
-# ====================================================================
-# 2. YARDIMCI FONKSİYONLAR
-# ====================================================================
+
 def auth_request(endpoint, email, password):
     try:
         url = f"https://identitytoolkit.googleapis.com/v1/accounts:{endpoint}?key={FIREBASE_WEB_API_KEY}"
@@ -170,9 +163,7 @@ def upload_image_to_firebase(image_file, mid, sid):
     except Exception as e:
         st.error(f"Resim Hatası: {e}"); return None
 
-# ====================================================================
-# 3. GİRİŞ VE KAYIT SAYFALARI
-# ====================================================================
+
 def login_page():
     st.markdown("<h1 style='text-align: center; color: #D9007E;'>ETM 7/24 Bayi Paneli</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1,2,1])
@@ -207,9 +198,7 @@ def login_page():
                         st.success("Kayıt alındı.")
                     else: st.error("Kayıt başarısız.")
 
-# ====================================================================
-# 4. YÖNETİCİ PANELİ
-# ====================================================================
+
 def admin_management_panel():
     st.markdown("### 🛡️ Yönetici Paneli")
     users = get_all_users()
@@ -228,9 +217,7 @@ def admin_management_panel():
                 if st.button("Kaydet", key=f"s_{uid}"):
                     update_user_status(uid, appr, sel); st.success("Güncellendi!"); st.rerun()
 
-# ====================================================================
-# 5. DASHBOARD VE MAKİNE YÖNETİMİ
-# ====================================================================
+
 def dashboard_page():
     c1, c2, c3 = st.columns([6, 2, 1])
     with c1: 
@@ -396,9 +383,6 @@ def manage_machine_page():
                     update_product_info(mid, sel_slot, n_name, n_price, url)
                 st.success("Başarılı!"); time.sleep(1); st.rerun()
 
-# ====================================================================
-# 6. AKIŞ
-# ====================================================================
 if 'logged_in' not in st.session_state: st.session_state['logged_in'] = False
 
 if not st.session_state['logged_in']: login_page()
